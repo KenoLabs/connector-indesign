@@ -1,0 +1,24 @@
+{
+    "name": "treolabs/connector-indesign",
+    "require": {
+        "treolabs/treocore": ">=3.24.0 <3.26.0",
+        "treolabs/pim": ">=3.11.0 <3.13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ConnectorInDesign\\": "app/"
+        }
+    },
+    "extra": {
+        "treoId": "ConnectorInDesign",
+        "name": {
+            "default": "Connector InDesign"
+        },
+        "description": {
+            "default": "Connector to InDesign for PIM"
+        },
+        "tags": [
+            "indesing"
+        ]
+    }
+}

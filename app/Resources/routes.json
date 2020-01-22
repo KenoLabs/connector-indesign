@@ -1,0 +1,24 @@
+[
+    {
+        "route": "/InDesign/getProduct",
+        "method": "post",
+        "params": {
+            "controller": "InDesign",
+            "action": "getProduct"
+        },
+        "conditions": {
+            "auth": true
+        }
+    },
+    {
+        "route": "/InDesign/setProductChanges",
+        "method": "put",
+        "params": {
+            "controller": "InDesign",
+            "action": "setProductChanges"
+        },
+        "conditions": {
+            "auth": true
+        }
+    }
+]
