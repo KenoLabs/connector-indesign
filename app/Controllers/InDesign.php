@@ -55,7 +55,7 @@ class InDesign extends \Espo\Core\Templates\Controllers\Base
             $this->getFileManager()->mkdir($this->logDir);
         }
 
-        $logFile = $this->logDir . '/indesign-hook-' . date('Y-m-d') . '.log';
+        $logFile = $this->logDir . '/indesign-request-' . date('Y-m-d') . '.log';
 
         $data = '[' . date('Y-m-d H:i:s') . '] InDesign (' . $typeRequest . ') Request:';
         $data .= PHP_EOL . 'Request headers: ' . PHP_EOL;
