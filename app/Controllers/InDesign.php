@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace ConnectorInDesign\Controllers;
 
-use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Exceptions\Forbidden;
 
 /**
  * Class InDesign
@@ -71,16 +71,107 @@ class InDesign extends \Espo\Core\Templates\Controllers\Base
      * @param $params
      * @param $data
      * @param \Slim\Http\Request $request
-     * @return bool
-     * @throws BadRequest
+     * @return array
      */
     public function postActionGetProduct($params, $data, $request)
     {
         $this->logInDesignRequest($request, 'POST');
+
+        $body = (array)json_decode($request->getBody(), true);
+
+        if (!empty($body['ids'])) {
+            $productsEntity = $this->getEntityManager()->getRepository('Product')->where([
+                'id' => $body['ids']
+            ])->find();
+
+            $return = $this->generateAnswer($productsEntity);
+        } else {
+            $productsEntity = $this->getEntityManager()->getRepository('Product')->where([
+                $body['where']['AND']
+            ])->find();
+
+            $return = $this->generateAnswer($productsEntity);
+        }
+
+        return $return;
     }
 
+    /**
+     * Generate answer
+     *
+     * @param Entity $productsEntity
+     * @return mixed
+     */
+    private function generateAnswer($productsEntity)
+    {
+        $return = [];
+
+        foreach ($productsEntity as $key => $productEntity) {
+            if ($this->getAcl()->checkEntity($productEntity, 'read')) {
+                $return['records'][$key] = [
+                    'id' => $productEntity->get('id'),
+                    'fields' => [
+                        'name' => $productEntity->get('name'),
+                        'sku' => $productEntity->get('sku'),
+                        'type' => $productEntity->get('type'),
+                        'amount' => $productEntity->get('amount'),
+                        'finalPrice' => $productEntity->get('finalPrice'),
+                        'productStatus' => $productEntity->get('productStatus'),
+                        'ean' => $productEntity->get('ean'),
+                        'mpn' => $productEntity->get('mpn'),
+                        'uvp' => $productEntity->get('uvp'),
+                        'longDescription' => $productEntity->get('longDescription'),
+                        'priceCurrency' => $productEntity->get('priceCurrency'),
+                        'brandName' => $productEntity->get('brandName'),
+                        'taxName' => $productEntity->get('taxName')
+                    ]
+                ];
+
+                if (!empty($productEntity->get('productFamilyName'))) {
+                    $return['records'][$key]['fields']['productFamilyName'] = $productEntity->get('productFamilyName');
+                }
+                if (!empty($productEntity->get('catalogName'))) {
+                    $return['records'][$key]['fields']['catalogName'] = $productEntity->get('catalogName');
+                }
+            } else {
+                throw new Forbidden ("This user can't read products");
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param $params
+     * @param $data
+     * @param \Slim\Http\Request $request
+     */
     public function putActionSetProductChanges($params, $data, $request)
     {
         $this->logInDesignRequest($request, 'PUT');
+
+        $body = (array)json_decode($request->getBody(), true);
+
+        foreach ($body['records'] as $productInDesign) {
+            $productEntity = $this->getEntityManager()->getRepository('Product')->where([
+                'id' => $productInDesign['id']
+            ])->findOne();
+            if ($this->getAcl()->checkEntity($productEntity, 'edit')) {
+                $save = false;
+                foreach ($productInDesign['fields'] as $field => $value) {
+                    if ($value != $productEntity->get($field)) {
+                        $save = true;
+                        $productEntity->set([
+                            $field => $value
+                        ]);
+                    }
+                }
+                if ($save) {
+                    $this->getEntityManager()->saveEntity($productEntity);
+                }
+            } else {
+                throw new Forbidden ("This user can't change products");
+            }
+        }
     }
 }
