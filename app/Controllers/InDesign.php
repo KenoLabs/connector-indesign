@@ -84,25 +84,31 @@ class InDesign extends \Espo\Core\Templates\Controllers\Base
                 'id' => $body['ids']
             ])->find();
 
-            $return = $this->generateAnswer($productsEntity);
-        } else {
+            $return = $this->generateAnswerToInDesign($productsEntity);
+        } elseif (!empty($body['where'])) {
             $productsEntity = $this->getEntityManager()->getRepository('Product')->where([
-                $body['where']['AND']
+                $body['where']
             ])->find();
 
-            $return = $this->generateAnswer($productsEntity);
+            $return = $this->generateAnswerToInDesign($productsEntity);
+        } else {
+            $productsEntity = $this->getEntityManager()->getRepository('Product')->where([
+                'isActive' => true
+            ])->find();
+
+            $return = $this->generateAnswerToInDesign($productsEntity);
         }
 
         return $return;
     }
 
     /**
-     * Generate answer
+     * Generate answer to InDesign
      *
      * @param Entity $productsEntity
      * @return mixed
      */
-    private function generateAnswer($productsEntity)
+    private function generateAnswerToInDesign($productsEntity)
     {
         $return = [];
 
@@ -145,6 +151,7 @@ class InDesign extends \Espo\Core\Templates\Controllers\Base
      * @param $params
      * @param $data
      * @param \Slim\Http\Request $request
+     * @return string
      */
     public function putActionSetProductChanges($params, $data, $request)
     {
@@ -173,5 +180,7 @@ class InDesign extends \Espo\Core\Templates\Controllers\Base
                 throw new Forbidden ("This user can't change products");
             }
         }
+
+        return 'Success';
     }
 }
