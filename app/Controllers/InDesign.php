@@ -80,37 +80,21 @@ class InDesign extends \Espo\Core\Templates\Controllers\Base
         $body = (array)json_decode($request->getBody(), true);
 
         if (!empty($body['ids'])) {
-            $productsEntity = $this->getEntityManager()->getRepository('Product')->where([
+            $where = [
                 'id' => $body['ids']
-            ])->find();
-
-            $return = $this->generateAnswerToInDesign($productsEntity);
+            ];
         } elseif (!empty($body['where'])) {
-            $productsEntity = $this->getEntityManager()->getRepository('Product')->where([
+            $where = [
                 $body['where']
-            ])->find();
-
-            $return = $this->generateAnswerToInDesign($productsEntity);
+            ];
         } else {
-            $productsEntity = $this->getEntityManager()->getRepository('Product')->where([
+            $where = [
                 'isActive' => true
-            ])->find();
-
-            $return = $this->generateAnswerToInDesign($productsEntity);
+            ];
         }
 
-        return $return;
-    }
-
-    /**
-     * Generate answer to InDesign
-     *
-     * @param Entity $productsEntity
-     * @return mixed
-     */
-    private function generateAnswerToInDesign($productsEntity)
-    {
         $return = [];
+        $productsEntity = $this->getEntityManager()->getRepository('Product')->where($where)->find();
 
         foreach ($productsEntity as $key => $productEntity) {
             if ($this->getAcl()->checkEntity($productEntity, 'read')) {
