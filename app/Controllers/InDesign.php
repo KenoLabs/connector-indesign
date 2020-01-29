@@ -27,6 +27,9 @@ use Espo\Core\Exceptions\Forbidden;
 
 /**
  * Class InDesign
+ *
+ * @author o.trelin <o.trelin@treolabs.com>
+ * @author d.talko <d.talko@treolabs.com>
  */
 class InDesign extends \Espo\Core\Templates\Controllers\Base
 {
